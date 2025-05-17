@@ -42,6 +42,7 @@ nav_contact.addEventListener("click", () => {
 
 let transparent = "hsla(45, 17%, 95%, .3)";
 let nav_bg = "hsla(45, 17%, 95%, .4)";
+
 window.addEventListener("scroll", () => {
   const nav_scroll = window.scrollY;
   console.log(nav_scroll);
@@ -64,12 +65,16 @@ window.addEventListener("keydown", function (event) {
 changeLight = () => {
   document.querySelector(":root").style.setProperty("--black", "#dcdcdc");
   document.querySelector(":root").style.setProperty("--light-cream", "#000000");
-  document.querySelector(":root").style.setProperty("--theme-orange", "#75C2F6");
+  document
+    .querySelector(":root")
+    .style.setProperty("--theme-orange", "#75C2F6");
 };
 changeDark = () => {
   document.querySelector(":root").style.setProperty("--black", "#000000");
   document.querySelector(":root").style.setProperty("--light-cream", "#dcdcdc");
-  document.querySelector(":root").style.setProperty("--theme-orange", "#FFC288");
+  document
+    .querySelector(":root")
+    .style.setProperty("--theme-orange", "#FFC288");
 };
 
 let btn_val = 0;
@@ -107,17 +112,33 @@ window.addEventListener("scroll", () => {
 
 // REAVILING ANIMAMTION
 
-window.addEventListener("scroll", () => {
-  let scroll_value = window.scrollY;
-  if (scroll_value > 550) {
-    document.querySelector(".about-hero").classList.add("animate");
-    document.querySelector(".about-heading").classList.add("animate");
-    document.querySelector(".about-sub-heading").classList.add("animate");
-    document.querySelector(".about-p").classList.add("animate");
-    document.querySelector(".about-p2").classList.add("animate");
-    document.querySelector(".spotify").classList.add("animate");
-  }
+document.addEventListener("DOMContentLoaded", () => {
+  const elementsToAnimate = [
+    ".about-hero",
+    ".about-heading",
+    ".about-sub-heading",
+    ".about-p",
+    ".about-p2",
+    ".spotify"
+  ];
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add("animate");
+        observer.unobserve(entry.target); // Prevent repeat animation
+      }
+    });
+  }, {
+    threshold: 0.1, // Trigger when 10% of the element is visible
+  });
+
+  elementsToAnimate.forEach(selector => {
+    const el = document.querySelector(selector);
+    if (el) observer.observe(el);
+  });
 });
+
 
 //    ROTATING LOGO ANIMATION
 const text = document.querySelector(".text p");
@@ -129,14 +150,30 @@ text.innerHTML = text.innerText
   .join("");
 
 var lastScroll = 0;
+let scrollTimeout;
+let topRightRotation = 0;
+let bottomLeftRotation = 0;
+const rotationSpeed = 2; // degrees per scroll event
+
 window.onscroll = function () {
   let currentScroll =
     document.documentElement.scrollTop || document.body.scrollTop; // Get Current Scroll Value
+
+  // Clear the timeout on new scroll
+  clearTimeout(scrollTimeout);
 
   if (currentScroll > 0 && lastScroll <= currentScroll) {
     lastScroll = currentScroll;
     document.querySelector(".text").style.animation =
       "rotateTextAnClk 10s linear infinite";
+    
+    // Increment rotation for scrolling down
+    topRightRotation += rotationSpeed;
+    bottomLeftRotation += rotationSpeed;
+    
+    // Apply rotations
+    document.querySelector(".top-right").style.transform = `rotate(${topRightRotation}deg)`;
+    document.querySelector(".bottom-left").style.transform = `rotate(${bottomLeftRotation}deg)`;
 
     if (window.innerWidth > 768) {
       if (currentScroll > 1500) {
@@ -171,6 +208,14 @@ window.onscroll = function () {
     lastScroll = currentScroll;
     document.querySelector(".text").style.animation =
       "rotateTextClk 10s linear infinite";
+      
+    // Decrement rotation for scrolling up
+    topRightRotation -= rotationSpeed;
+    bottomLeftRotation -= rotationSpeed;
+    
+    // Apply rotations
+    document.querySelector(".top-right").style.transform = `rotate(${topRightRotation}deg)`;
+    document.querySelector(".bottom-left").style.transform = `rotate(${bottomLeftRotation}deg)`;
 
     if (window.innerWidth > 768) {
       if (currentScroll <= 1500) {
@@ -186,7 +231,7 @@ window.onscroll = function () {
         document.getElementById("4").classList.remove("fx");
       }
     }
-    if (window.innerWidth<=768) {
+    if (window.innerWidth <= 768) {
       if (currentScroll <= 1600) {
         document.getElementById("1").classList.remove("fx");
       }
@@ -201,4 +246,70 @@ window.onscroll = function () {
       }
     }
   }
+
+  // Set timeout to detect scroll stop
+  scrollTimeout = setTimeout(function() {
+    // No need to reset anything - stars will stay at their current rotation
+  }, 150);
 };
+
+// Add hover effect handling
+const stars = document.querySelectorAll('.star');
+stars.forEach(star => {
+  star.addEventListener('mouseenter', function() {
+    // Store the current rotation
+    this.dataset.previousRotation = this.style.transform;
+    // Apply hover rotation
+    this.style.transform = 'rotate(45deg)';
+  });
+  
+  star.addEventListener('mouseleave', function() {
+    // Restore the previous rotation
+    this.style.transform = this.dataset.previousRotation;
+  });
+});
+
+// Hour Lines Footer
+function createHourLines() {
+  const container = document.querySelector('.lines-container');
+  const currentHour = new Date().getHours();
+  
+  // Create 24 lines with varying heights
+  for (let i = 0; i < 24; i++) {
+    const line = document.createElement('div');
+    line.className = 'hour-line';
+    
+    // Set random height between 30% and 100%
+    const height = Math.floor(Math.random() * (70 - 30) + 20);
+    line.style.height = `${height}%`;
+    
+    // Add active class to current hour's line
+    if (i === currentHour) {
+      line.classList.add('active');
+    }
+    
+    container.appendChild(line);
+  }
+}
+
+// Update active line every hour
+function updateActiveLine() {
+  const currentHour = new Date().getHours();
+  const lines = document.querySelectorAll('.hour-line');
+  
+  lines.forEach((line, index) => {
+    if (index === currentHour) {
+      line.classList.add('active');
+    } else {
+      line.classList.remove('active');
+    }
+  });
+}
+
+// Initialize hour lines
+createHourLines();
+
+// Check for hour changes every minute
+setInterval(() => {
+  updateActiveLine();
+}, 60000);
